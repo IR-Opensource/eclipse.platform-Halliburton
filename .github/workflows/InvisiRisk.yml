@@ -25,28 +25,33 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config user.name "ir-paras-oli"
-          git config user.email "paras.oli@invisirisk.com"
+          git config user.name "ir-pranesh-shrestha"
+          git config user.email "pranesh.shrestha@invisirisk.com"
+          
       - name: Add upstream and sync fork
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_PAT }}
         run: |
-          git remote add upstream https://github.com/saltstack/salt.git
+          git remote add upstream https://github.com/Halliburton-Landmark/eclipse.platform.git
           git fetch upstream
-          git checkout master
-          git merge upstream/master --no-edit
-          git push https://x-access-token:${{ secrets.MY_PAT }}@github.com/ir-paras-oli/salt master
+          git checkout dsg-4_30
+          git merge upstream/dsg-4_30 --no-edit
+          git push https://x-access-token:${GITHUB_TOKEN}@github.com/ir-pranesh-shrestha/eclipse.platform-Halliburton- dsg-4_30
+          
       - name: Setup PSE
         uses: invisirisk/pse-action@latest
         with:
           api_url: "https://app.invisirisk.com"
-          app_token: ${{ secrets.IR_API_KEY }}
+          app_token: ${{ secrets.IR_API_KEY_PROD }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
         with:
-          python-version: "3.10"
+          distribution: 'temurin'  # Or 'zulu', 'adopt', etc.
+          java-version: '17'       # Use the Java version you need
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Build with Maven
+        run: mvn clean install
 
       - name: Cleanup PSE
         if: always()
